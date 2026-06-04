@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/page": "app/page.js",
+  "/tabla/page": "app/tabla/page.js",
+  "/predicciones/[id]/page": "app/predicciones/[id]/page.js",
+  "/predicciones/page": "app/predicciones/page.js",
+  "/reglamento/page": "app/reglamento/page.js",
+  "/historial/page": "app/historial/page.js",
+  "/dashboard/page": "app/dashboard/page.js"
+}
