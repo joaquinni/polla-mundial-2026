@@ -1,9 +1,8 @@
-// middleware.ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PUBLIC_ROUTES  = ['/auth/login', '/auth/register']
-const ADMIN_ROUTES   = ['/admin']
+const PUBLIC_ROUTES = ['/auth/login', '/auth/register']
+const ADMIN_ROUTES  = ['/admin']
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -15,9 +14,9 @@ export async function middleware(request: NextRequest) {
       cookies: {
         getAll() { return request.cookies.getAll() },
         setAll(toSet: any) {
-          toSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          toSet.forEach(({ name, value }: any) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
-          toSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
+          toSet.forEach(({ name, value, options }: any) => supabaseResponse.cookies.set(name, value, options))
         },
       },
     }
@@ -26,28 +25,21 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // No autenticado → redirigir a login (excepto rutas públicas)
   if (!user && !PUBLIC_ROUTES.some(r => pathname.startsWith(r))) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     return NextResponse.redirect(url)
   }
 
-  // Autenticado en página de auth → redirigir a dashboard
   if (user && PUBLIC_ROUTES.some(r => pathname.startsWith(r))) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
-  // Rutas admin → verificar rol
   if (user && ADMIN_ROUTES.some(r => pathname.startsWith(r))) {
     const { data: usuario } = await supabase
-      .from('usuarios')
-      .select('rol')
-      .eq('id', user.id)
-      .single()
-
+      .from('usuarios').select('rol').eq('id', user.id).single()
     if (!usuario || usuario.rol !== 'admin') {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
